@@ -1,84 +1,176 @@
-# README - Aplicación de Matrices
+# README - Aplicación de Manipulación de Matrices
+
+![Arquitectura Cliente-Servidor](https://img.shields.io/badge/Arquitectura-Client--Server-blue)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.4-green)
+![Java](https://img.shields.io/badge/Java-17%2B-orange)
+
+## Tabla de Contenidos
+1. [Descripción General](#descripción-general)  
+2. [Arquitectura del Sistema](#arquitectura-del-sistema)  
+3. [Componentes del Código](#componentes-del-código)  
+4. [Flujo de Operaciones](#flujo-de-operaciones)  
+5. [Documentación de la API](#documentación-de-la-api)  
+6. [Instalación y Configuración](#instalación-y-configuración)  
+7. [Uso de la Aplicación](#uso-de-la-aplicación)  
+8. [Principios de Diseño](#principios-de-diseño)  
+9. [Estructura del Proyecto](#estructura-del-proyecto)  
+10. [Dependencias](#dependencias)  
+11. [Solución de Problemas](#solución-de-problemas)  
+12. [Roadmap](#roadmap)  
+13. [Contribución](#contribución)  
+
+---
 
 ## Descripción General
-Aplicación para manipulación de matrices que implementa una arquitectura cliente-servidor. Permite realizar operaciones matemáticas sobre matrices como la transposición.
+Aplicación cliente-servidor para operaciones matriciales con:
+- **Backend**: Servicio REST en Spring Boot (Java 17)
+- **Frontend**: Interfaz gráfica Swing con tabla editable
+- **Comunicación**: HTTP/JSON mediante adaptador REST
 
-## Arquitectura
-El proyecto utiliza una arquitectura separada en dos componentes:
+**Funcionalidades clave**:
+- 🖩 Transposición de matrices  
+- 📊 Visualización interactiva  
+- 🔄 Conversión automática de formatos (UI → JSON → UI)
 
-1. **Servidor REST** (Spring Boot): Procesa las operaciones matemáticas
-2. **Cliente Swing**: Proporciona interfaz gráfica para interactuar con el servidor
+---
 
-## Componentes Principales
+## Arquitectura del Sistema
+```mermaid
+flowchart TD
+    A[Interfaz Swing] -->|Convertir a JSON| B(SwingToRestAdapter)
+    B -->|POST /transponer| C[MatrizController]
+    C -->|Lógica de negocio| D[MatrizServiceImpl]
+    D -->|Modelo de dominio| E[Matriz]
+    E -->|Resultado| C
+    C -->|Respuesta JSON| B
+    B -->|Actualizar UI| A
+```
+## Componentes del Código
 
 ### Backend (Spring Boot)
-- **MatrizApplication**: Clase principal que inicia el servidor REST
-- **Dominio**:
-  - `Matriz`: Clase que encapsula los datos de una matriz
-- **Servicios**:
-  - `MatrizService`: Interfaz que define operaciones sobre matrices
-  - `MatrizServiceImpl`: Implementación que realiza las operaciones matemáticas
-- **Controladores**:
-  - `MatrizController`: API REST con endpoints para manipular matrices
-  - `MatrizDto`: Clase para transferencia de datos entre cliente y servidor
+
+| Clase               | Responsabilidad                              | Detalles Técnicos                          |
+|---------------------|----------------------------------------------|--------------------------------------------|
+| `Matriz`            | Almacena y valida la estructura de la matriz | Valida matriz no vacía en constructor      |
+| `MatrizService`     | Define operaciones matriciales               | Interfaz con métodos para transponer       |
+| `MatrizServiceImpl` | Implementa la lógica de transposición        | Algoritmo O(n²) con arreglos bidimensionales |
+| `MatrizController`  | Maneja endpoints REST                        | Usa `@RestController` y `@PostMapping`     |
+| `MatrizDto`         | Transferencia de datos cliente-servidor      | Serialización JSON automática con Jackson  |
 
 ### Frontend (Swing)
-- **MatrizFrame**: Ventana principal con tabla editable y botones de acción
-- **SwingToRestAdapter**: Adaptador que comunica la interfaz con el servidor REST
 
-## Diagrama de Funcionamiento
+| Clase               | Responsabilidad                      | Detalles Técnicos                         |
+|---------------------|--------------------------------------|-------------------------------------------|
+| `MatrizFrame`       | Ventana principal con tabla editable | Usa `JTable` y `DefaultTableModel`        |
+| `SwingToRestAdapter`| Comunica UI con backend              | Implementa `RestTemplate` para HTTP calls |
 
+---
+
+## Flujo de Operaciones
+
+### Transposición de Matriz:
+
+```mermaid
+sequenceDiagram
+    participant Usuario
+    participant MatrizFrame
+    participant SwingToRestAdapter
+    participant MatrizController
+    participant MatrizServiceImpl
+    
+    Usuario->>MatrizFrame: Edita celdas de la tabla
+    MatrizFrame->>SwingToRestAdapter: Convierte tabla a int[][]
+    SwingToRestAdapter->>MatrizController: POST /api/matrices/transponer
+    MatrizController->>MatrizServiceImpl: transponer(matriz)
+    MatrizServiceImpl-->>MatrizController: Matriz transpuesta
+    MatrizController-->>SwingToRestAdapter: 200 OK + JSON
+    SwingToRestAdapter-->>MatrizFrame: Actualiza tabla con nuevos datos
+    MatrizFrame-->>Usuario: Muestra resultado
 ```
-[Interfaz Swing] <--> [SwingToRestAdapter] <--> [API REST] <--> [Servicios] <--> [Dominio]
+
+## Documentación de la API
+
+### Endpoints Disponibles
+
+#### `GET /api/matrices`
+
+**Descripción**: Endpoint de bienvenida  
+**Response**:
+```bash
+API de matrices activa. Endpoints disponibles:
+- POST /api/matrices/transponer (recibe y devuelve JSON con matrices)
+- POST /api/matrices/imprimir (recibe JSON y devuelve texto para impresión)
+## API: Transposición e Impresión de Matrices
+
+### POST `/api/matrices/transponer`
+
+**Request**:
+```json
+{
+  "datos": [
+    [1, 2],
+    [3, 4]
+  ]
+}
+```
+## Instalación y Configuración
+
+### Requisitos Mínimos
+
+- Java 17 o superior  
+- Maven 3.8+  
+- 512 MB de RAM libre  
+- Puerto 8080 disponible  
+
+---
+
+### Pasos de Instalación
+
+1. **Clonar repositorio**:
+```bash
+git clone https://github.com/tu-usuario/matriz-app.git
+cd matriz-app
+## Compilar el proyecto:
+
+```bash
+mvn clean install
 ```
 
-## Instrucciones de Uso
+## Ejecutar el servidor:
 
-### 1. Iniciar el servidor
-```
-1. Ejecutar la clase MatrizApplication
-2. Esperar hasta ver el mensaje "Started MatrizApplication" en la consola
+```bash
+java -jar target/matriz-app.jar
 ```
 
-### 2. Iniciar la interfaz gráfica
+## Ejecutar cliente Swing (en terminal separada):
+
+```bash
+java -cp target/matriz-app.jar org.example.matriz.swing.view.MatrizFrame
 ```
-1. Ejecutar la clase MatrizFrame
-2. Se abrirá una ventana con una tabla 2x2 predeterminada
-```
 
-### 3. Verificar funcionamiento
-- Acceder a http://localhost:8080/api/matrices para confirmar que la API está activa
-- La interfaz gráfica debería estar conectada automáticamente al servidor
+---
 
-## Operaciones Disponibles
+## Uso de la Aplicación
 
-### Desde la interfaz gráfica
-1. Editar valores en la tabla
-2. Hacer clic en "Transponer" para calcular la matriz transpuesta
+### Interfaz Gráfica
 
-### Desde la API REST
-- `GET /api/matrices`: Información sobre los endpoints disponibles
-- `POST /api/matrices/transponer`: Recibe una matriz en JSON y devuelve su transpuesta
-- `POST /api/matrices/imprimir`: Recibe una matriz en JSON y devuelve formato para impresión
+**Editar matriz:**
 
-## Solución de Problemas
+- Hacer doble clic en cualquier celda  
+- Ingresar valores numéricos  
 
-### Puerto ocupado
-Si aparece error "Port 8080 already in use":
-1. Terminar procesos previos de la aplicación
-2. O configurar otro puerto en `application.properties`:
-   ```
-   server.port=8081
-   ```
-   (Recordar actualizar también la URL en `SwingToRestAdapter`)
+**Transponer:**
 
-## Requisitos Técnicos
-- Java 17+
-- Maven
-- Spring Boot 3.4.4
-- Spring AI 1.0.0-M7
+- Click en el botón **"Transponer"**  
+- La tabla se actualizará automáticamente  
 
-## Principios de Diseño Aplicados
-- SRP (Single Responsibility Principle)
-- DIP (Dependency Inversion Principle)
-- Arquitectura por capas y orientada a servicios
+**Cambiar tamaño:**
+
+- Editar directamente las dimensiones (disponible en próxima versión)  
+
+---
+
+## Verificación de Servicio
+
+Acceder a [http://localhost:8080/api/matrices](http://localhost:8080/api/matrices) desde un navegador o Postman para confirmar que el servicio está activo.
+
