@@ -21,6 +21,16 @@ public class MatrizController {
     }
 
     /**
+     * Endpoint de bienvenida que responde a la ruta base
+     */
+    @GetMapping
+    public String welcome() {
+        return "API de matrices activa. Endpoints disponibles:\n" +
+               "- POST /api/matrices/transponer (recibe y devuelve JSON con matrices)\n" +
+               "- POST /api/matrices/imprimir (recibe JSON y devuelve texto para impresión)";
+    }
+
+    /**
      * Recibe JSON
      *   { "datos": [[1,2],[3,4]] }
      * Devuelve
