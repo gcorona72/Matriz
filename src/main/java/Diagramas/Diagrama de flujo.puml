@@ -1,0 +1,45 @@
+@startuml
+' Diagrama de Flujo para uso de Matriz
+start
+
+:1. Definir array bidimensional de enteros;
+:2. Instanciar objeto Matriz con el array;
+note right
+  m = new Matriz(datos);
+end note
+
+:3. Llamar a m.imprimir();
+partition "imprimir()" {
+  :i = 0;
+  while (i < filas) is (sí)
+    :j = 0;
+    while (j < columnas) is (sí)
+      :print(datos[i][j] + " ");
+      :j = j + 1;
+    endwhile
+    :print("\n");
+    :i = i + 1;
+  endwhile
+}
+
+:4. Llamar a m.transpuesta();
+partition "transpuesta()" {
+  :filasT = columnas;
+  :colsT = filas;
+  :crear array aux[filasT][colsT];
+  :i = 0;
+  while (i < filas) is (sí)
+    :j = 0;
+    while (j < columnas) is (sí)
+      :aux[j][i] = datos[i][j];
+      :j = j + 1;
+    endwhile
+    :i = i + 1;
+  endwhile
+  :return new Matriz(aux);
+}
+
+:5. Llamar a mTranspuesta.imprimir();
+
+stop
+@enduml

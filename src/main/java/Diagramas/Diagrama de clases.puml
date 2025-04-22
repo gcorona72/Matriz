@@ -1,0 +1,12 @@
+@startuml
+' Diagrama de Clases para la clase Matriz
+package dominio {
+  class Matriz {
+    - int[][] datos
+    --
+    + Matriz(datos: int[][])
+    + void imprimir()
+    + Matriz transpuesta()
+  }
+}
+@enduml
