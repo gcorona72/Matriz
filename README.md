@@ -174,3 +174,6 @@ java -cp target/matriz-app.jar org.example.matriz.swing.view.MatrizFrame
 
 Acceder a [http://localhost:8080/api/matrices](http://localhost:8080/api/matrices) desde un navegador o Postman para confirmar que el servicio está activo.
 
+## Licencia
+
+Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
